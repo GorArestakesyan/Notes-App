@@ -1,97 +1,230 @@
-This is a new [**React Native**](https://reactnative.dev) project, bootstrapped using [`@react-native-community/cli`](https://github.com/react-native-community/cli).
+# Notes App - React Native + Supabase
 
-# Getting Started
+A simple Notes application built with React Native and Supabase, demonstrating authentication, secure CRUD operations, and basic UI/state management.
 
-> **Note**: Make sure you have completed the [Set Up Your Environment](https://reactnative.dev/docs/set-up-your-environment) guide before proceeding.
+## 🚀 Features
 
-## Step 1: Start Metro
+- **Authentication**
+  - Sign up with email and password
+  - Sign in
+  - Sign out
+  - Session persistence (users stay logged in after app restart)
 
-First, you will need to run **Metro**, the JavaScript build tool for React Native.
+- **Notes Management (CRUD)**
+  - Create notes
+  - View list of notes
+  - Edit notes
+  - Delete notes
+  - Search notes by title
 
-To start the Metro dev server, run the following command from the root of your React Native project:
+- **Security**
+  - Row Level Security (RLS) policies ensure users can only access their own notes
+  - Secure authentication via Supabase Auth
 
-```sh
-# Using npm
-npm start
+## 🛠 Tech Stack
 
-# OR using Yarn
-yarn start
+- **React Native** (0.83.1)
+- **Supabase** (Authentication + Database)
+- **React Navigation** (Native Stack Navigator)
+- **TypeScript**
+- **AsyncStorage** (for session persistence)
+
+## 📋 Prerequisites
+
+- Node.js >= 20
+- Yarn package manager
+- Android Studio (for Android development)
+- Supabase account (free tier works)
+
+## 🔧 Setup Instructions
+
+### 1. Clone the Repository
+
+```bash
+git clone <your-repo-url>
+cd Notes
 ```
 
-## Step 2: Build and run your app
+### 2. Install Dependencies
 
-With Metro running, open a new terminal window/pane from the root of your React Native project, and use one of the following commands to build and run your Android or iOS app:
+```bash
+yarn install
+```
 
-### Android
+### 3. Set Up Supabase
 
-```sh
-# Using npm
-npm run android
+1. Create a new project at [supabase.com](https://supabase.com)
+2. Go to **Settings** → **API** and copy:
+   - Project URL
+   - Anon (public) key
 
-# OR using Yarn
+3. Update `src/config/supabase.ts` with your credentials:
+
+```typescript
+const SUPABASE_URL = 'YOUR_SUPABASE_URL';
+const SUPABASE_ANON_KEY = 'YOUR_SUPABASE_ANON_KEY';
+```
+
+4. In your Supabase dashboard, go to **SQL Editor** and run the migration script from `supabase/migrations/001_create_notes_table.sql`
+
+   This will:
+   - Create the `notes` table with required fields
+   - Set up Row Level Security (RLS) policies
+   - Create indexes for performance
+   - Set up automatic `updated_at` timestamp updates
+
+### 4. Run the App
+
+#### Android
+
+```bash
+# Start Metro bundler
+yarn start
+
+# In a new terminal, run Android app
 yarn android
 ```
 
-### iOS
+#### Build APK
 
-For iOS, remember to install CocoaPods dependencies (this only needs to be run on first clone or after updating native deps).
+To generate a debug APK:
 
-The first time you create a new project, run the Ruby bundler to install CocoaPods itself:
-
-```sh
-bundle install
+```bash
+cd android
+./gradlew assembleDebug
 ```
 
-Then, and every time you update your native dependencies, run:
+The APK will be located at: `android/app/build/outputs/apk/debug/app-debug.apk`
 
-```sh
-bundle exec pod install
+To generate a release APK (requires signing configuration):
+
+```bash
+cd android
+./gradlew assembleRelease
 ```
 
-For more information, please visit [CocoaPods Getting Started guide](https://guides.cocoapods.org/using/getting-started.html).
+## 📊 Supabase Schema
 
-```sh
-# Using npm
-npm run ios
+### Notes Table
 
-# OR using Yarn
-yarn ios
+| Column      | Type                        | Description                    |
+|-------------|-----------------------------|--------------------------------|
+| id          | UUID                        | Primary key (auto-generated)   |
+| title       | TEXT                        | Note title (required)          |
+| content     | TEXT                        | Note content                   |
+| user_id     | UUID                        | Foreign key to auth.users      |
+| created_at  | TIMESTAMP WITH TIME ZONE    | Creation timestamp             |
+| updated_at  | TIMESTAMP WITH TIME ZONE    | Last update timestamp          |
+
+### Row Level Security (RLS) Policies
+
+The following policies ensure users can only access their own notes:
+
+1. **SELECT**: Users can only view their own notes
+2. **INSERT**: Users can only create notes for themselves
+3. **UPDATE**: Users can only update their own notes
+4. **DELETE**: Users can only delete their own notes
+
+All policies use `auth.uid() = user_id` to enforce user isolation.
+
+## 🔐 Authentication Approach
+
+- **Storage**: Uses `@react-native-async-storage/async-storage` for session persistence
+- **Session Management**: Supabase client automatically handles token refresh and session persistence
+- **Context API**: Custom `AuthContext` provides authentication state and methods throughout the app
+- **Session Check**: On app launch, the app checks for an existing session and restores it if available
+
+## 📱 Project Structure
+
+```
+Notes/
+├── src/
+│   ├── config/
+│   │   └── supabase.ts          # Supabase client configuration
+│   ├── contexts/
+│   │   └── AuthContext.tsx      # Authentication context provider
+│   ├── navigation/
+│   │   └── AppNavigator.tsx     # Navigation setup
+│   ├── screens/
+│   │   ├── LoginScreen.tsx      # Login screen
+│   │   ├── SignUpScreen.tsx     # Sign up screen
+│   │   ├── NotesListScreen.tsx  # Notes list with search
+│   │   └── NoteDetailScreen.tsx # Create/Edit note screen
+│   ├── services/
+│   │   ├── authService.ts       # Authentication service
+│   │   └── notesService.ts      # Notes CRUD service
+│   └── types/
+│       └── index.ts              # TypeScript type definitions
+├── supabase/
+│   └── migrations/
+│       └── 001_create_notes_table.sql  # Database migration
+├── android/                     # Android native code
+├── App.tsx                       # Root component
+└── package.json
 ```
 
-If everything is set up correctly, you should see your new app running in the Android Emulator, iOS Simulator, or your connected device.
+## 🎯 Key Implementation Details
 
-This is one way to run your app — you can also build it directly from Android Studio or Xcode.
+### Session Persistence
 
-## Step 3: Modify your app
+The app uses Supabase's built-in session persistence with AsyncStorage. When a user logs in, the session is stored locally and automatically restored on app restart.
 
-Now that you have successfully run the app, let's make changes!
+### Search Functionality
 
-Open `App.tsx` in your text editor of choice and make some changes. When you save, your app will automatically update and reflect these changes — this is powered by [Fast Refresh](https://reactnative.dev/docs/fast-refresh).
+The search feature filters notes client-side by title. The search is case-insensitive and updates in real-time as the user types.
 
-When you want to forcefully reload, for example to reset the state of your app, you can perform a full reload:
+### Error Handling
 
-- **Android**: Press the <kbd>R</kbd> key twice or select **"Reload"** from the **Dev Menu**, accessed via <kbd>Ctrl</kbd> + <kbd>M</kbd> (Windows/Linux) or <kbd>Cmd ⌘</kbd> + <kbd>M</kbd> (macOS).
-- **iOS**: Press <kbd>R</kbd> in iOS Simulator.
+- Form validation on client side
+- Error alerts for failed operations
+- Loading states during async operations
 
-## Congratulations! :tada:
+### UI/UX
 
-You've successfully run and modified your React Native App. :partying_face:
+- Clean, modern interface
+- Proper spacing and typography
+- Loading indicators
+- Pull-to-refresh on notes list
+- Floating action button for creating notes
+- Keyboard-aware scrolling
 
-### Now what?
+## 🚨 Important Notes
 
-- If you want to add this new React Native code to an existing application, check out the [Integration guide](https://reactnative.dev/docs/integration-with-existing-apps).
-- If you're curious to learn more about React Native, check out the [docs](https://reactnative.dev/docs/getting-started).
+1. **Supabase Configuration**: Make sure to update `src/config/supabase.ts` with your actual Supabase credentials before running the app.
 
-# Troubleshooting
+2. **Database Setup**: The migration script must be run in Supabase SQL Editor before the app can function properly.
 
-If you're having issues getting the above steps to work, see the [Troubleshooting](https://reactnative.dev/docs/troubleshooting) page.
+3. **Android Build**: The app is configured for Android builds. The debug keystore is included for testing purposes.
 
-# Learn More
+4. **Security**: Row Level Security (RLS) is enabled and properly configured to ensure users can only access their own notes.
 
-To learn more about React Native, take a look at the following resources:
+## 📝 Assumptions & Trade-offs
 
-- [React Native Website](https://reactnative.dev) - learn more about React Native.
-- [Getting Started](https://reactnative.dev/docs/environment-setup) - an **overview** of React Native and how setup your environment.
-- [Learn the Basics](https://reactnative.dev/docs/getting-started) - a **guided tour** of the React Native **basics**.
-- [Blog](https://reactnative.dev/blog) - read the latest official React Native **Blog** posts.
-- [`@facebook/react-native`](https://github.com/facebook/react-native) - the Open Source; GitHub **repository** for React Native.
+1. **Search Implementation**: Chose client-side search (Option B) as it's simpler and sufficient for the assignment requirements. For production with large datasets, server-side search would be recommended.
+
+2. **Offline Handling**: Basic error handling is in place, but full offline support with local caching was not implemented as search was chosen instead.
+
+3. **UI Framework**: Used React Native's built-in components for simplicity. No external UI libraries were used to keep dependencies minimal.
+
+4. **State Management**: Used React Context API and hooks for state management. For larger apps, Redux or Zustand might be more appropriate.
+
+5. **Type Safety**: Full TypeScript implementation for better code quality and developer experience.
+
+## 🧪 Testing
+
+To test the app:
+
+1. Sign up with a new email
+2. Create a few notes
+3. Test search functionality
+4. Edit and delete notes
+5. Log out and log back in (session should persist)
+6. Close and reopen the app (should remain logged in)
+
+## 📄 License
+
+This project is created for a technical assignment.
+
+## 👤 Author
+
+Created as part of a React Native Developer technical assessment.

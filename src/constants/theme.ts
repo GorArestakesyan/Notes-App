@@ -1,0 +1,73 @@
+export const theme = {
+  colors: {
+    background: '#F8FAFC',
+    card: '#FFFFFF',
+    primary: '#6366F1',
+    primaryDark: '#4F46E5',
+    secondary: '#8B5CF6',
+    textPrimary: '#1E293B',
+    textMuted: '#64748B',
+    highlight: '#EEF2FF',
+    border: '#E2E8F0',
+    borderLight: '#F1F5F9',
+    danger: '#EF4444',
+  },
+  spacing: {
+    xs: 4,
+    sm: 8,
+    md: 16,
+    lg: 24,
+    xl: 32,
+    xxl: 48,
+  },
+  borderRadius: {
+    sm: 8,
+    md: 12,
+    lg: 16,
+    xl: 20,
+  },
+  typography: {
+    fontSize: {
+      xs: 12,
+      sm: 14,
+      base: 16,
+      md: 18,
+      lg: 24,
+      xl: 32,
+      xxl: 40,
+    },
+    lineHeight: {
+      tight: 1.4,
+      normal: 1.6,
+      relaxed: 1.8,
+    },
+    fontWeight: {
+      normal: '400' as const,
+      medium: '500' as const,
+      semibold: '600' as const,
+      bold: '700' as const,
+    },
+  },
+  shadows: {
+    soft: {
+      shadowColor: '#6366F1',
+      shadowOffset: { width: 0, height: 2 },
+      shadowOpacity: 0.1,
+      shadowRadius: 8,
+      elevation: 2,
+    },
+    medium: {
+      shadowColor: '#6366F1',
+      shadowOffset: { width: 0, height: 4 },
+      shadowOpacity: 0.15,
+      shadowRadius: 12,
+      elevation: 4,
+    },
+  },
+  fonts: {
+    regular: 'CrimsonPro-Regular',
+    medium: 'CrimsonPro-Medium',
+    semibold: 'CrimsonPro-SemiBold',
+    bold: 'CrimsonPro-Bold',
+  },
+} as const;

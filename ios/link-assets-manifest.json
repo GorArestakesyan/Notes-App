@@ -1,0 +1,21 @@
+{
+  "migIndex": 1,
+  "data": [
+    {
+      "path": "assets/fonts/CrimsonPro-Regular.ttf",
+      "sha1": "252ccba6fbbf31d1afacaa914d90a159e87f72b5"
+    },
+    {
+      "path": "assets/fonts/CrimsonPro-SemiBold.ttf",
+      "sha1": "660952fc1cc9ff459747fa547a27a26a492329f3"
+    },
+    {
+      "path": "assets/fonts/CrimsonPro-Bold.ttf",
+      "sha1": "414b3baf7d9683e20d97a3fa3e82afcbee8a21c9"
+    },
+    {
+      "path": "assets/fonts/CrimsonPro-Medium.ttf",
+      "sha1": "f0ce6de045990bac35a49c1083cbc1ac309d7710"
+    }
+  ]
+}
