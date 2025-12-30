@@ -317,4 +317,4 @@ This project is created for a technical assignment.
 
 ## 👤 Author
 
-Created as part of a React Native Developer technical assessment.
+[@Gor Arestakesyan](https://github.com/GorArestakesyan)
